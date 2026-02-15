@@ -1,0 +1,1572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - User Management System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 16px;
+        }
+
+        .server-status {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+            border-left: 4px solid;
+        }
+
+        .stat-card:nth-child(1) { border-left-color: #4299e1; } /* Total Users - Blue */
+        .stat-card:nth-child(2) { border-left-color: #48bb78; } /* Active Users - Green */
+        .stat-card:nth-child(3) { border-left-color: #ecc94b; } /* Pending - Yellow */
+        .stat-card:nth-child(4) { border-left-color: #f56565; } /* Duplicate - Red */
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        .stat-card h3 {
+            color: #666;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .stat-number {
+            font-size: 42px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #888;
+            font-size: 14px;
+        }
+
+        .stat-detail {
+            margin-top: 10px;
+            font-size: 13px;
+            color: #666;
+            border-top: 1px solid #eee;
+            padding-top: 10px;
+        }
+
+        /* Folder Sections */
+        .folder-section {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .folder-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f2f5;
+        }
+
+        .folder-header h2 {
+            color: #333;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .folder-header h2 i {
+            font-size: 24px;
+        }
+
+        .folder-header .badge {
+            background: #e2e8f0;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            color: #4a5568;
+            margin-left: 10px;
+        }
+
+        .folder-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a67d8;
+        }
+
+        .btn-success {
+            background: #48bb78;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #38a169;
+        }
+
+        .btn-danger {
+            background: #f56565;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #e53e3e;
+        }
+
+        .btn-warning {
+            background: #ecc94b;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #d69e2e;
+        }
+
+        /* Tables */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #f8fafc;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #4a5568;
+            font-size: 14px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #e2e8f0;
+            color: #2d3748;
+            font-size: 14px;
+        }
+
+        tr:hover {
+            background: #f7fafc;
+        }
+
+        .user-status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-active {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .status-inactive {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+
+        .status-pending {
+            background: #feebc8;
+            color: #744210;
+        }
+
+        .status-duplicate {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+
+        /* Status Toggle Switch */
+        .status-toggle {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 26px;
+        }
+
+        .status-toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #f56565;
+            transition: .3s;
+            border-radius: 34px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: #48bb78;
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(34px);
+        }
+
+        .toggle-label {
+            margin-left: 8px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        /* Action Buttons */
+        .action-btn {
+            padding: 4px 8px;
+            margin: 0 2px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+
+        .action-view {
+            background: #4299e1;
+            color: white;
+        }
+
+        .action-view:hover {
+            background: #3182ce;
+        }
+
+        .action-activate {
+            background: #48bb78;
+            color: white;
+        }
+
+        .action-activate:hover {
+            background: #38a169;
+        }
+
+        .action-deactivate {
+            background: #f56565;
+            color: white;
+        }
+
+        .action-deactivate:hover {
+            background: #e53e3e;
+        }
+
+        .action-delete {
+            background: #fc8181;
+            color: white;
+        }
+
+        .action-delete:hover {
+            background: #f56565;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            position: relative;
+            background: white;
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f2f5;
+        }
+
+        .modal-header h3 {
+            color: #333;
+            font-size: 24px;
+        }
+
+        .close {
+            font-size: 28px;
+            cursor: pointer;
+            color: #888;
+        }
+
+        .close:hover {
+            color: #333;
+        }
+
+        .user-detail-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .user-detail {
+            margin-bottom: 15px;
+        }
+
+        .user-detail.full-width {
+            grid-column: span 2;
+        }
+
+        .user-detail label {
+            display: block;
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 5px;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .user-detail p {
+            padding: 12px;
+            background: #f7fafc;
+            border-radius: 8px;
+            color: #2d3748;
+            font-size: 15px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .image-preview {
+            max-width: 100%;
+            max-height: 300px;
+            margin-top: 10px;
+            border-radius: 8px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            margin-top: 5px;
+        }
+
+        .status-badge.active {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .status-badge.inactive {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+
+        .status-badge.pending {
+            background: #feebc8;
+            color: #744210;
+        }
+
+        /* Search Bar */
+        .search-bar {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        /* Filter Tabs */
+        .filter-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-tab {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 20px;
+            background: #e2e8f0;
+            color: #4a5568;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .filter-tab.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .filter-tab:hover {
+            background: #cbd5e0;
+        }
+
+        .filter-tab.active:hover {
+            background: #5a67d8;
+        }
+
+        /* Refresh Button */
+        .refresh-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #667eea;
+            color: white;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            font-size: 24px;
+            transition: all 0.3s;
+            z-index: 100;
+        }
+
+        .refresh-btn:hover {
+            transform: rotate(180deg);
+            background: #5a67d8;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #888;
+        }
+
+        /* Error Message */
+        .error-message {
+            background: #fed7d7;
+            color: #742a2a;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        /* Success Message */
+        .success-message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            background: #48bb78;
+            color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .user-detail-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .folder-header {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .modal-content {
+                margin: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>👨‍💼 Admin Dashboard</h1>
+            <p>Monitor and manage all users, registrations, and system activities</p>
+            <div class="server-status" id="serverStatus">🔄 Connecting to server...</div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>📊 TOTAL REGISTRATIONS</h3>
+                <div class="stat-number" id="totalUsers">0</div>
+                <div class="stat-label">All users who ever registered</div>
+                <div class="stat-detail" id="totalUsersDetail">Active: 0 | Pending: 0 | Duplicate: 0</div>
+            </div>
+            <div class="stat-card">
+                <h3>✅ ACTIVE USERS</h3>
+                <div class="stat-number" id="activeUsers">0</div>
+                <div class="stat-label">Can login now</div>
+                <div class="stat-detail" id="activeUsersDetail">In LoginData folder</div>
+            </div>
+            <div class="stat-card">
+                <h3>⏳ PENDING ACTIVATION</h3>
+                <div class="stat-number" id="pendingUsers">0</div>
+                <div class="stat-label">New registrations</div>
+                <div class="stat-detail" id="pendingUsersDetail">In RegisterData folder • Awaiting approval</div>
+            </div>
+            <div class="stat-card">
+                <h3>⚠️ DUPLICATE ENTRIES</h3>
+                <div class="stat-number" id="duplicateUsers">0</div>
+                <div class="stat-label">Needs review</div>
+                <div class="stat-detail" id="duplicateUsersDetail">In DuplicateData folder</div>
+            </div>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="search-bar">
+            <input type="text" class="search-input" id="searchInput" placeholder="🔍 Search by name, email, ID, or mobile...">
+            <button class="btn btn-primary" onclick="filterTable()">Search</button>
+            <button class="btn btn-success" onclick="refreshAllData()">🔄 Refresh</button>
+        </div>
+
+        <!-- NEW: REGISTER USERS DETAILS SECTION (Combined View) -->
+        <div class="folder-section">
+            <div class="folder-header">
+                <h2>📋 REGISTER USERS DETAILS <span class="badge" id="totalRegisteredUsers">0</span> <span style="font-size: 14px; color: #888;">(All Registered Users)</span></h2>
+                <div class="folder-actions">
+                    <button class="btn btn-success" onclick="exportToCSV('all')">📥 Export All CSV</button>
+                </div>
+            </div>
+            
+            <!-- Filter Tabs -->
+            <div class="filter-tabs">
+                <button class="filter-tab active" onclick="filterRegisterUsers('all')">ALL USERS <span id="allUsersCount">0</span></button>
+                <button class="filter-tab" onclick="filterRegisterUsers('active')">✅ ACTIVE <span id="activeUsersCount">0</span></button>
+                <button class="filter-tab" onclick="filterRegisterUsers('pending')">⏳ PENDING <span id="pendingUsersCount">0</span></button>
+                <button class="filter-tab" onclick="filterRegisterUsers('duplicate')">⚠️ DUPLICATE <span id="duplicateUsersCount">0</span></button>
+            </div>
+
+            <!-- Status Summary Cards -->
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px;">
+                <div style="background: #f0f9ff; padding: 15px; border-radius: 10px; text-align: center;">
+                    <div style="font-size: 24px; font-weight: bold; color: #4299e1;" id="activeCountDisplay">0</div>
+                    <div style="font-size: 14px; color: #666;">Active Users</div>
+                    <div style="font-size: 12px; color: #888;">Can login now</div>
+                </div>
+                <div style="background: #fef9e7; padding: 15px; border-radius: 10px; text-align: center;">
+                    <div style="font-size: 24px; font-weight: bold; color: #ecc94b;" id="pendingCountDisplay">0</div>
+                    <div style="font-size: 14px; color: #666;">Pending Users</div>
+                    <div style="font-size: 12px; color: #888;">Awaiting activation</div>
+                </div>
+                <div style="background: #fff5f5; padding: 15px; border-radius: 10px; text-align: center;">
+                    <div style="font-size: 24px; font-weight: bold; color: #f56565;" id="duplicateCountDisplay">0</div>
+                    <div style="font-size: 14px; color: #666;">Duplicate Entries</div>
+                    <div style="font-size: 12px; color: #888;">Needs review</div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table id="registerUsersTable">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>ID</th>
+                            <th>Mobile</th>
+                            <th>Registered Date</th>
+                            <th>Current Status</th>
+                            <th>Location</th>
+                            <th>Has Image</th>
+                            <th>Actions</th>
+                            <th>Toggle Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="registerUsersTableBody">
+                        <tr><td colspan="10" class="loading">Loading data...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Login Data Section (Active Users) -->
+        <div class="folder-section">
+            <div class="folder-header">
+                <h2>📂 ACTIVE USERS <span class="badge" id="loginCount">0</span> <span style="font-size: 14px; color: #888;">(In LoginData - Can Login)</span></h2>
+                <div class="folder-actions">
+                    <button class="btn btn-success" onclick="exportToCSV('login')">📥 Export CSV</button>
+                </div>
+            </div>
+            <div class="table-container">
+                <table id="loginTable">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>ID</th>
+                            <th>Mobile</th>
+                            <th>Activated On</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="loginTableBody">
+                        <tr><td colspan="7" class="loading">Loading data...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Register Data Section (Pending Activation) -->
+        <div class="folder-section">
+            <div class="folder-header">
+                <h2>📁 PENDING REGISTRATIONS <span class="badge" id="registerCount">0</span> <span style="font-size: 14px; color: #888;">(In RegisterData - Awaiting Activation)</span></h2>
+                <div class="folder-actions">
+                    <button class="btn btn-warning" onclick="bulkActivate()">⚡ Bulk Activate</button>
+                    <button class="btn btn-success" onclick="exportToCSV('register')">📥 Export CSV</button>
+                </div>
+            </div>
+            <div class="table-container">
+                <table id="registerTable">
+                    <thead>
+                        <tr>
+                            <th><input type="checkbox" id="selectAllRegister" onclick="toggleAll('register')"></th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>ID</th>
+                            <th>Mobile</th>
+                            <th>Registered On</th>
+                            <th>Has Image</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="registerTableBody">
+                        <tr><td colspan="9" class="loading">Loading data...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Duplicate Data Section -->
+        <div class="folder-section">
+            <div class="folder-header">
+                <h2>⚠️ DUPLICATE ENTRIES <span class="badge" id="duplicateCount">0</span> <span style="font-size: 14px; color: #888;">(Needs Review)</span></h2>
+                <div class="folder-actions">
+                    <button class="btn btn-danger" onclick="clearDuplicates()">🗑️ Clear All</button>
+                </div>
+            </div>
+            <div class="table-container">
+                <table id="duplicateTable">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>ID</th>
+                            <th>Mobile</th>
+                            <th>Registered</th>
+                            <th>Reason</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="duplicateTableBody">
+                        <tr><td colspan="7" class="loading">Loading data...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Activity Log -->
+        <div class="folder-section">
+            <div class="folder-header">
+                <h2>📋 Recent Activity</h2>
+                <button class="btn" onclick="clearLog()">Clear Log</button>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Event</th>
+                            <th>User</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="activityLogBody">
+                        <tr><td colspan="4" class="loading">No recent activity</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Refresh Button -->
+    <button class="refresh-btn" onclick="refreshAllData()">↻</button>
+
+    <!-- User Details Modal - Enhanced with all JSON fields -->
+    <div id="userModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>📋 Complete User Details (JSON Data)</h3>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <div id="modalContent" class="user-detail-grid">
+                <!-- Dynamic content will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3000';
+        let activityLog = [];
+        let allUsers = {
+            login: [],
+            register: [],
+            duplicate: []
+        };
+        let currentFilter = 'all';
+
+        // Load data on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            refreshAllData();
+            setInterval(refreshAllData, 30000); // Refresh every 30 seconds
+        });
+
+        // Refresh all data
+        async function refreshAllData() {
+            try {
+                // Test server connection
+                const testResponse = await fetch(`${API_URL}/api/test`);
+                const testData = await testResponse.json();
+                
+                if (testData.success) {
+                    document.getElementById('serverStatus').innerHTML = '✅ Server connected';
+                    
+                    // Load all folder data
+                    await Promise.all([
+                        loadFolderData('LoginData'),
+                        loadFolderData('RegisterData'),
+                        loadFolderData('DuplicateData')
+                    ]);
+                    
+                    updateStats();
+                    displayAllRegisterUsers();
+                    addToLog('System', 'Data refreshed', 'info');
+                }
+            } catch (error) {
+                document.getElementById('serverStatus').innerHTML = '❌ Server offline';
+                showNotification('Cannot connect to server. Make sure Node.js server is running.', 'error');
+            }
+        }
+
+        // Load folder data
+        async function loadFolderData(folderName) {
+            try {
+                const response = await fetch(`${API_URL}/api/folder/users/${folderName}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Store data with proper status
+                    if (folderName === 'LoginData') {
+                        allUsers.login = data.users.map(user => ({
+                            ...user,
+                            status: 'active',
+                            statusDisplay: 'Active',
+                            statusClass: 'status-active',
+                            statusIcon: '✅',
+                            folder: 'LoginData',
+                            activatedDate: user.movedToLoginDate || user.registrationDate
+                        }));
+                        displayLoginData(allUsers.login);
+                    } else if (folderName === 'RegisterData') {
+                        allUsers.register = data.users.map(user => ({
+                            ...user,
+                            status: 'pending',
+                            statusDisplay: 'Pending',
+                            statusClass: 'status-pending',
+                            statusIcon: '⏳',
+                            folder: 'RegisterData'
+                        }));
+                        displayRegisterData(allUsers.register);
+                    } else if (folderName === 'DuplicateData') {
+                        allUsers.duplicate = data.users.map(user => ({
+                            ...user,
+                            status: 'duplicate',
+                            statusDisplay: 'Duplicate',
+                            statusClass: 'status-duplicate',
+                            statusIcon: '⚠️',
+                            folder: 'DuplicateData'
+                        }));
+                        displayDuplicateData(allUsers.duplicate);
+                    }
+                    
+                    // Update counts
+                    const countElement = document.getElementById(`${folderName.toLowerCase()}Count`);
+                    if (countElement) {
+                        countElement.textContent = data.users.length;
+                    }
+                }
+            } catch (error) {
+                console.error(`Error loading ${folderName}:`, error);
+            }
+        }
+
+        // Display all register users in combined view
+        function displayAllRegisterUsers() {
+            const tbody = document.getElementById('registerUsersTableBody');
+            
+            // Combine all users
+            const allRegisteredUsers = [
+                ...allUsers.login.map(user => ({ ...user, originalStatus: 'active' })),
+                ...allUsers.register.map(user => ({ ...user, originalStatus: 'pending' })),
+                ...allUsers.duplicate.map(user => ({ ...user, originalStatus: 'duplicate' }))
+            ];
+            
+            // Update counts for filter tabs
+            document.getElementById('allUsersCount').textContent = allRegisteredUsers.length;
+            document.getElementById('activeUsersCount').textContent = allUsers.login.length;
+            document.getElementById('pendingUsersCount').textContent = allUsers.register.length;
+            document.getElementById('duplicateUsersCount').textContent = allUsers.duplicate.length;
+            
+            // Update summary cards
+            document.getElementById('activeCountDisplay').textContent = allUsers.login.length;
+            document.getElementById('pendingCountDisplay').textContent = allUsers.register.length;
+            document.getElementById('duplicateCountDisplay').textContent = allUsers.duplicate.length;
+            document.getElementById('totalRegisteredUsers').textContent = allRegisteredUsers.length;
+            
+            // Filter users based on current filter
+            let filteredUsers = allRegisteredUsers;
+            if (currentFilter === 'active') {
+                filteredUsers = allRegisteredUsers.filter(u => u.originalStatus === 'active');
+            } else if (currentFilter === 'pending') {
+                filteredUsers = allRegisteredUsers.filter(u => u.originalStatus === 'pending');
+            } else if (currentFilter === 'duplicate') {
+                filteredUsers = allRegisteredUsers.filter(u => u.originalStatus === 'duplicate');
+            }
+            
+            if (filteredUsers.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="10" class="loading">No ${currentFilter === 'all' ? '' : currentFilter} users found</td></tr>`;
+                return;
+            }
+            
+            let html = '';
+            filteredUsers.forEach(user => {
+                const statusClass = user.originalStatus === 'active' ? 'status-active' : 
+                                   user.originalStatus === 'pending' ? 'status-pending' : 'status-duplicate';
+                const statusText = user.originalStatus === 'active' ? '✅ Active' : 
+                                  user.originalStatus === 'pending' ? '⏳ Pending' : '⚠️ Duplicate';
+                const isActive = user.originalStatus === 'active';
+                
+                html += `
+                    <tr>
+                        <td>${user.userName || user.name || 'N/A'}</td>
+                        <td>${user.userEmail || user.email || 'N/A'}</td>
+                        <td>${user.userID || user.id || 'N/A'}</td>
+                        <td>${user.userMobileNumber || user.mobileNumber || user.mobile || 'N/A'}</td>
+                        <td>${formatDate(user.userRegistrationDate || user.registrationDate)}</td>
+                        <td><span class="user-status ${statusClass}">${statusText}</span></td>
+                        <td>${user.folder || 'N/A'}</td>
+                        <td>${user.userPngFileName || user.pngFileName ? '✅ Yes' : '❌ No'}</td>
+                        <td>
+                            <button class="action-btn action-view" onclick="viewUser('${user.userEmail || user.email}', '${user.folder}')">View</button>
+                            ${user.originalStatus !== 'duplicate' ? 
+                                `<button class="action-btn ${isActive ? 'action-deactivate' : 'action-activate'}" onclick="${isActive ? 'deactivateUser' : 'activateUser'}('${user.userEmail || user.email}')">
+                                    ${isActive ? 'Deactivate' : 'Activate'}
+                                </button>` : ''
+                            }
+                            <button class="action-btn action-delete" onclick="deleteUser('${user.userEmail || user.email}', '${user.folder}')">Delete</button>
+                        </td>
+                        <td>
+                            <label class="status-toggle">
+                                <input type="checkbox" ${isActive ? 'checked' : ''} onchange="toggleUserStatus('${user.userEmail || user.email}', this.checked, '${user.originalStatus}', '${user.folder}')">
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span class="toggle-label">${isActive ? 'Active' : 'Inactive'}</span>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            tbody.innerHTML = html;
+        }
+
+        // Filter register users
+        function filterRegisterUsers(filter) {
+            currentFilter = filter;
+            
+            // Update active tab
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            displayAllRegisterUsers();
+        }
+
+        // Toggle user status with toggle switch
+        async function toggleUserStatus(email, shouldBeActive, currentStatus, folder) {
+            if (shouldBeActive && currentStatus !== 'active') {
+                // Activate user
+                if (confirm(`Activate user ${email}?`)) {
+                    await activateUser(email);
+                } else {
+                    // Revert toggle if cancelled
+                    refreshAllData();
+                }
+            } else if (!shouldBeActive && currentStatus === 'active') {
+                // Deactivate user
+                if (confirm(`Deactivate user ${email}?`)) {
+                    await deactivateUser(email);
+                } else {
+                    // Revert toggle if cancelled
+                    refreshAllData();
+                }
+            }
+        }
+
+        // Display Login Data (Active Users)
+        function displayLoginData(users) {
+            const tbody = document.getElementById('loginTableBody');
+            
+            if (users.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="loading">No active users found</td></tr>';
+                return;
+            }
+            
+            let html = '';
+            users.forEach(user => {
+                html += `
+                    <tr>
+                        <td>${user.userName || user.name || 'N/A'}</td>
+                        <td>${user.userEmail || user.email || 'N/A'}</td>
+                        <td>${user.userID || user.id || 'N/A'}</td>
+                        <td>${user.userMobileNumber || user.mobileNumber || user.mobile || 'N/A'}</td>
+                        <td>${formatDate(user.activatedDate)}</td>
+                        <td><span class="user-status status-active">✅ Active</span></td>
+                        <td>
+                            <button class="action-btn action-view" onclick="viewUser('${user.userEmail || user.email}', 'LoginData')">View</button>
+                            <button class="action-btn action-deactivate" onclick="deactivateUser('${user.userEmail || user.email}')">Deactivate</button>
+                            <button class="action-btn action-delete" onclick="deleteUser('${user.userEmail || user.email}', 'LoginData')">Delete</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            tbody.innerHTML = html;
+        }
+
+        // Display Register Data (Pending Users)
+        function displayRegisterData(users) {
+            const tbody = document.getElementById('registerTableBody');
+            
+            if (users.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" class="loading">No pending users found</td></tr>';
+                return;
+            }
+            
+            let html = '';
+            users.forEach(user => {
+                html += `
+                    <tr>
+                        <td><input type="checkbox" class="register-checkbox" value="${user.userEmail || user.email}"></td>
+                        <td>${user.userName || user.name || 'N/A'}</td>
+                        <td>${user.userEmail || user.email || 'N/A'}</td>
+                        <td>${user.userID || user.id || 'N/A'}</td>
+                        <td>${user.userMobileNumber || user.mobileNumber || user.mobile || 'N/A'}</td>
+                        <td>${formatDate(user.userRegistrationDate || user.registrationDate)}</td>
+                        <td>${user.userPngFileName || user.pngFileName ? '✅ Yes' : '❌ No'}</td>
+                        <td><span class="user-status status-pending">⏳ Pending</span></td>
+                        <td>
+                            <button class="action-btn action-view" onclick="viewUser('${user.userEmail || user.email}', 'RegisterData')">View</button>
+                            <button class="action-btn action-activate" onclick="activateUser('${user.userEmail || user.email}')">Activate</button>
+                            <button class="action-btn action-delete" onclick="deleteUser('${user.userEmail || user.email}', 'RegisterData')">Delete</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            tbody.innerHTML = html;
+        }
+
+        // Display Duplicate Data
+        function displayDuplicateData(users) {
+            const tbody = document.getElementById('duplicateTableBody');
+            
+            if (users.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="loading">No duplicate entries found</td></tr>';
+                return;
+            }
+            
+            let html = '';
+            users.forEach(user => {
+                html += `
+                    <tr>
+                        <td>${user.userName || user.name || 'N/A'}</td>
+                        <td>${user.userEmail || user.email || 'N/A'}</td>
+                        <td>${user.userID || user.id || 'N/A'}</td>
+                        <td>${user.userMobileNumber || user.mobileNumber || user.mobile || 'N/A'}</td>
+                        <td>${formatDate(user.userRegistrationDate || user.registrationDate)}</td>
+                        <td><span class="user-status status-duplicate">⚠️ ${user.duplicateReason || 'Duplicate Entry'}</span></td>
+                        <td>
+                            <button class="action-btn action-view" onclick="viewUser('${user.userEmail || user.email}', 'DuplicateData')">View</button>
+                            <button class="action-btn action-delete" onclick="deleteUser('${user.userEmail || user.email}', 'DuplicateData')">Delete</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            tbody.innerHTML = html;
+        }
+
+        // Update statistics with REAL data
+        function updateStats() {
+            const loginCount = allUsers.login.length;
+            const registerCount = allUsers.register.length;
+            const duplicateCount = allUsers.duplicate.length;
+            const totalCount = loginCount + registerCount + duplicateCount;
+            
+            // Update main numbers
+            document.getElementById('totalUsers').textContent = totalCount;
+            document.getElementById('activeUsers').textContent = loginCount;
+            document.getElementById('pendingUsers').textContent = registerCount;
+            document.getElementById('duplicateUsers').textContent = duplicateCount;
+            
+            // Update detailed info
+            document.getElementById('totalUsersDetail').innerHTML = `Active: ${loginCount} | Pending: ${registerCount} | Duplicate: ${duplicateCount}`;
+            document.getElementById('activeUsersDetail').innerHTML = `In LoginData folder • ${loginCount} active user${loginCount !== 1 ? 's' : ''}`;
+            document.getElementById('pendingUsersDetail').innerHTML = `In RegisterData folder • ${registerCount} pending user${registerCount !== 1 ? 's' : ''} awaiting activation`;
+            document.getElementById('duplicateUsersDetail').innerHTML = `In DuplicateData folder • ${duplicateCount} duplicate entr${duplicateCount !== 1 ? 'ies' : 'y'}`;
+            
+            // Update folder badges
+            document.getElementById('loginCount').textContent = loginCount;
+            document.getElementById('registerCount').textContent = registerCount;
+            document.getElementById('duplicateCount').textContent = duplicateCount;
+        }
+
+        // View user details - ENHANCED with all JSON fields
+        async function viewUser(email, folder) {
+            try {
+                const response = await fetch(`${API_URL}/api/user/get`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    const user = data.userData;
+                    const status = folder === 'LoginData' ? 'Active' : folder === 'RegisterData' ? 'Pending' : 'Duplicate';
+                    
+                    // Determine activation/deactivation times
+                    const isActive = folder === 'LoginData';
+                    const activationTime = user.userActivationTime || user.activationTime || user.movedToLoginDate || (isActive ? new Date().toISOString() : 'N/A');
+                    const deactivationTime = user.userLastDeactivationTime || user.lastDeactivationTime || (folder === 'RegisterData' && !isActive ? new Date().toISOString() : 'N/A');
+                    
+                    // Comprehensive JSON data display
+                    let html = `
+                        <!-- Personal Information -->
+                        <div class="user-detail">
+                            <label>👤 User Name:</label>
+                            <p>${user.userName || user.name || 'N/A'}</p>
+                        </div>
+                        <div class="user-detail">
+                            <label>📧 User Email:</label>
+                            <p>${user.userEmail || user.email || 'N/A'}</p>
+                        </div>
+                        <div class="user-detail">
+                            <label>🆔 User ID:</label>
+                            <p>${user.userID || user.id || 'N/A'}</p>
+                        </div>
+                        <div class="user-detail">
+                            <label>📱 User Mobile Number:</label>
+                            <p>${user.userMobileNumber || user.mobileNumber || user.mobile || 'N/A'}</p>
+                        </div>
+                        
+                        <!-- Category & Role -->
+                        <div class="user-detail">
+                            <label>📂 User Category:</label>
+                            <p>${user.userCategory || user.category || 'N/A'}</p>
+                        </div>
+                        <div class="user-detail">
+                            <label>👔 User Role:</label>
+                            <p>${user.userRole || user.role || 'N/A'}</p>
+                        </div>
+                        
+                        <!-- ID Proof -->
+                        <div class="user-detail">
+                            <label>🪪 User ID Proof Type:</label>
+                            <p>${user.userIdProofType || user.idProofType || 'N/A'}</p>
+                        </div>
+                        
+                        <!-- Location Information -->
+                        <div class="user-detail">
+                            <label>📍 User State:</label>
+                            <p>${user.userState || user.state || 'N/A'}</p>
+                        </div>
+                        <div class="user-detail">
+                            <label>🌍 User Country:</label>
+                            <p>${user.userCountry || user.country || 'N/A'}</p>
+                        </div>
+                        <div class="user-detail">
+                            <label>🏷️ User Country Category:</label>
+                            <p>${user.userCountryCategory || user.countryCategory || user.usercountryCategory || 'N/A'}</p>
+                        </div>
+                        
+                        <!-- Registration Details -->
+                        <div class="user-detail">
+                            <label>📅 User Registration Date:</label>
+                            <p>${formatDate(user.userRegistrationDate || user.registrationDate)}</p>
+                        </div>
+                        <div class="user-detail">
+                            <label>🖼️ User PNG File Name:</label>
+                            <p>${user.userPngFileName || user.pngFileName || 'No image file'}</p>
+                        </div>
+                        
+                        <!-- Status Information -->
+                        <div class="user-detail">
+                            <label>⚡ User Is Active:</label>
+                            <p>
+                                <span class="status-badge ${isActive ? 'active' : 'inactive'}">
+                                    ${isActive ? '✅ Active' : '❌ Inactive'}
+                                </span>
+                            </p>
+                        </div>
+                        <div class="user-detail">
+                            <label>⏰ User Activation Time:</label>
+                            <p>${formatDate(activationTime)}</p>
+                        </div>
+                        <div class="user-detail">
+                            <label>🕒 User Last Deactivation Time:</label>
+                            <p>${formatDate(deactivationTime)}</p>
+                        </div>
+                        
+                        <!-- Additional Information -->
+                        <div class="user-detail">
+                            <label>📁 Current Location:</label>
+                            <p>${folder} (${status})</p>
+                        </div>
+                    `;
+                    
+                    // Add raw JSON data for debugging/verification
+                    html += `
+                        <div class="user-detail full-width" style="margin-top: 20px;">
+                            <label>🔍 Raw JSON Data:</label>
+                            <pre style="background: #f7fafc; padding: 15px; border-radius: 8px; overflow-x: auto; font-size: 12px;">${JSON.stringify(user, null, 2)}</pre>
+                        </div>
+                    `;
+                    
+                    document.getElementById('modalContent').innerHTML = html;
+                    document.getElementById('userModal').style.display = 'block';
+                    
+                    addToLog('Admin', `Viewed user: ${user.userEmail || user.email}`, 'info');
+                }
+            } catch (error) {
+                showNotification('Error loading user details', 'error');
+                console.error('View user error:', error);
+            }
+        }
+
+        // Activate user (Move from RegisterData to LoginData)
+        async function activateUser(email) {
+            if (!confirm(`Activate user ${email}? This will move them to LoginData (Active Users).`)) return;
+            
+            try {
+                const response = await fetch(`${API_URL}/api/admin/activate-user`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showNotification(`✅ User ${email} activated successfully! Moved to active users.`, 'success');
+                    addToLog('Admin', `Activated user: ${email}`, 'success');
+                    refreshAllData();
+                } else {
+                    showNotification('Failed to activate user', 'error');
+                }
+            } catch (error) {
+                showNotification('Error activating user', 'error');
+            }
+        }
+
+        // Deactivate user (Move from LoginData to RegisterData)
+        async function deactivateUser(email) {
+            if (!confirm(`Deactivate user ${email}? This will move them back to pending registrations.`)) return;
+            
+            try {
+                const response = await fetch(`${API_URL}/api/admin/deactivate-user`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showNotification(`⚠️ User ${email} moved to pending`, 'warning');
+                    addToLog('Admin', `Deactivated user: ${email}`, 'warning');
+                    refreshAllData();
+                } else {
+                    showNotification('Failed to deactivate user', 'error');
+                }
+            } catch (error) {
+                showNotification('Error deactivating user', 'error');
+            }
+        }
+
+        // Delete user
+        async function deleteUser(email, folder) {
+            if (!confirm(`⚠️ Permanently delete user ${email} from ${folder}? This cannot be undone.`)) return;
+            
+            try {
+                const response = await fetch(`${API_URL}/api/admin/delete-user`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, folder })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showNotification(`🗑️ User ${email} deleted from ${folder}`, 'info');
+                    addToLog('Admin', `Deleted user: ${email} from ${folder}`, 'danger');
+                    refreshAllData();
+                } else {
+                    showNotification('Failed to delete user', 'error');
+                }
+            } catch (error) {
+                showNotification('Error deleting user', 'error');
+            }
+        }
+
+        // Bulk activate
+        function bulkActivate() {
+            const checkboxes = document.querySelectorAll('.register-checkbox:checked');
+            if (checkboxes.length === 0) {
+                showNotification('No users selected', 'error');
+                return;
+            }
+            
+            if (!confirm(`Activate ${checkboxes.length} selected users? They will be moved to active users.`)) return;
+            
+            checkboxes.forEach(cb => {
+                activateUser(cb.value);
+            });
+        }
+
+        // Toggle all checkboxes
+        function toggleAll(type) {
+            const checkboxes = document.querySelectorAll(`.${type}-checkbox`);
+            const selectAll = document.getElementById(`selectAll${type.charAt(0).toUpperCase() + type.slice(1)}`);
+            
+            checkboxes.forEach(cb => {
+                cb.checked = selectAll.checked;
+            });
+        }
+
+        // Filter table based on search
+        function filterTable() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            
+            // Filter all tables
+            filterTableById('registerUsersTableBody', searchTerm);
+            filterTableById('loginTableBody', searchTerm);
+            filterTableById('registerTableBody', searchTerm);
+            filterTableById('duplicateTableBody', searchTerm);
+        }
+
+        function filterTableById(tableId, searchTerm) {
+            const rows = document.querySelectorAll(`#${tableId} tr`);
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        }
+
+        // Export to CSV
+        function exportToCSV(type) {
+            let users = [];
+            let filename = '';
+            
+            if (type === 'all') {
+                users = [
+                    ...allUsers.login.map(u => ({ ...u, status: 'Active' })),
+                    ...allUsers.register.map(u => ({ ...u, status: 'Pending' })),
+                    ...allUsers.duplicate.map(u => ({ ...u, status: 'Duplicate' }))
+                ];
+                filename = 'all_registered_users';
+            } else if (type === 'login') {
+                users = allUsers.login.map(u => ({ ...u, status: 'Active' }));
+                filename = 'active_users';
+            } else if (type === 'register') {
+                users = allUsers.register.map(u => ({ ...u, status: 'Pending' }));
+                filename = 'pending_users';
+            } else {
+                users = allUsers.duplicate.map(u => ({ ...u, status: 'Duplicate' }));
+                filename = 'duplicate_users';
+            }
+            
+            if (users.length === 0) {
+                showNotification('No data to export', 'error');
+                return;
+            }
+            
+            // Enhanced CSV with all fields
+            let csv = 'Name,Email,ID,Mobile Number,Category,Role,ID Proof Type,State,Country,Country Category,Registration Date,Image File,Status,Folder,Activation Time,Deactivation Time\n';
+            
+            users.forEach(user => {
+                const isActive = user.status === 'Active';
+                csv += `"${user.userName || user.name || ''}",` +
+                      `"${user.userEmail || user.email || ''}",` +
+                      `"${user.userID || user.id || ''}",` +
+                      `"${user.userMobileNumber || user.mobileNumber || user.mobile || ''}",` +
+                      `"${user.userCategory || user.category || ''}",` +
+                      `"${user.userRole || user.role || ''}",` +
+                      `"${user.userIdProofType || user.idProofType || ''}",` +
+                      `"${user.userState || user.state || ''}",` +
+                      `"${user.userCountry || user.country || ''}",` +
+                      `"${user.userCountryCategory || user.countryCategory || user.usercountryCategory || ''}",` +
+                      `"${user.userRegistrationDate || user.registrationDate || ''}",` +
+                      `"${user.userPngFileName || user.pngFileName || ''}",` +
+                      `"${user.status || ''}",` +
+                      `"${user.folder || ''}",` +
+                      `"${isActive ? (user.userActivationTime || user.activationTime || user.movedToLoginDate || '') : ''}",` +
+                      `"${!isActive ? (user.userLastDeactivationTime || user.lastDeactivationTime || '') : ''}"\n`;
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${filename}_${new Date().toISOString().slice(0,10)}.csv`;
+            a.click();
+            
+            addToLog('Admin', `Exported ${type} data to CSV`, 'info');
+        }
+
+        // Clear duplicates
+        function clearDuplicates() {
+            if (!confirm('Delete all duplicate entries? This cannot be undone.')) return;
+            
+            fetch(`${API_URL}/api/admin/clear-duplicates`, { method: 'POST' })
+                .then(() => {
+                    showNotification('Duplicate folder cleared', 'success');
+                    refreshAllData();
+                });
+        }
+
+        // Add to activity log
+        function addToLog(user, event, type) {
+            const time = new Date().toLocaleTimeString();
+            activityLog.unshift({ time, user, event, type });
+            
+            if (activityLog.length > 20) activityLog.pop();
+            
+            const tbody = document.getElementById('activityLogBody');
+            let html = '';
+            
+            activityLog.forEach(log => {
+                let statusColor = '#888';
+                if (log.type === 'success') statusColor = '#48bb78';
+                if (log.type === 'warning') statusColor = '#ecc94b';
+                if (log.type === 'error') statusColor = '#f56565';
+                if (log.type === 'danger') statusColor = '#f56565';
+                
+                html += `
+                    <tr>
+                        <td>${log.time}</td>
+                        <td>${log.event}</td>
+                        <td>${log.user}</td>
+                        <td><span style="color: ${statusColor};">●</span> ${log.type}</td>
+                    </tr>
+                `;
+            });
+            
+            tbody.innerHTML = html || '<tr><td colspan="4" class="loading">No recent activity</td></tr>';
+        }
+
+        // Clear log
+        function clearLog() {
+            activityLog = [];
+            document.getElementById('activityLogBody').innerHTML = '<tr><td colspan="4" class="loading">No recent activity</td></tr>';
+        }
+
+        // Format date
+        function formatDate(dateString) {
+            if (!dateString || dateString === 'N/A') return 'N/A';
+            try {
+                const date = new Date(dateString);
+                if (isNaN(date.getTime())) return dateString;
+                return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+            } catch {
+                return dateString;
+            }
+        }
+
+        // Show notification
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = type === 'error' ? 'error-message' : 'success-message';
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 25px;
+                background: ${type === 'error' ? '#f56565' : type === 'warning' ? '#ecc94b' : '#48bb78'};
+                color: white;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                z-index: 1000;
+                animation: slideIn 0.3s ease;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('userModal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('userModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+</html>
